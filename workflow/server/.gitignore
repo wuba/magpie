@@ -1,0 +1,16 @@
+.DS_Store
+.dart_tool/
+.idea/
+.packages
+.pub/
+.vscode/
+build/
+*.iml
+*.lock
+*.gitkeep
+**/*/Pods/
+**/*/xcuserdata
+pubspec.lock
+.pubspec.lock
+
+

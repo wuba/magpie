@@ -1,0 +1,261 @@
+// Copyright 2015 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'dart:async';
+
+import 'package:args/command_runner.dart';
+import 'package:intl/intl.dart' as intl;
+import 'package:intl/intl_standalone.dart' as intl_standalone;
+import 'package:meta/meta.dart';
+
+import 'src/base/common.dart';
+import 'src/base/context.dart';
+import 'src/base/file_system.dart';
+import 'src/base/io.dart';
+import 'src/base/logger.dart';
+import 'src/base/process.dart';
+import 'src/base/utils.dart';
+import 'src/context_runner.dart';
+import 'src/globals.dart';
+import 'src/reporting/reporting.dart';
+import 'src/version.dart';
+import 'src/doctor.dart';
+
+/// Runs the Flutter tool with support for the specified list of [commands].
+Future<int> run(
+  List<String> args,
+  List<Command> commands, {
+  bool muteCommandLogging = false,
+  bool verbose = false,
+  bool verboseHelp = false,
+  bool reportCrashes,
+  String flutterVersion,
+  Map<Type, Generator> overrides,
+}) {
+  reportCrashes ??= !isRunningOnBot;
+
+  if (muteCommandLogging) {
+    // Remove the verbose option; for help and doctor, users don't need to see
+    // verbose logs.
+    args = List<String>.from(args);
+    args.removeWhere(
+        (String option) => option == '-v' || option == '--verbose');
+  }
+
+  final CommandRunner runner = CommandRunner(
+    'mgpcli',
+    'Manage your Flutter app development.\n'
+        '\n'
+        'Common commands:\n'
+        '\n'
+        '  mgpcli create \n'
+        '    Create a new Flutter project in the specified directory.\n'
+        '\n'
+        '  mgpcli start \n'
+        '    Run Wuba Flutter workflow to manage your projrct',
+  );
+
+  commands.forEach(runner.addCommand);
+
+  return runInContext<int>(() async {
+    // Initialize the system locale.
+    final String systemLocale = await intl_standalone.findSystemLocale();
+    intl.Intl.defaultLocale = intl.Intl.verifiedLocale(
+      systemLocale,
+      intl.NumberFormat.localeExists,
+      onFailure: (String _) => 'en_US',
+    );
+
+    String getVersion() =>
+        flutterVersion ??
+        FlutterVersion.instance.getVersionString(redactUnknownBranches: true);
+    Object firstError;
+    StackTrace firstStackTrace;
+    return await runZoned<Future<int>>(() async {
+      try {
+        initProjectRootPath();
+        await runner.run(args);
+        return await _exit(0);
+      } catch (error, stackTrace) {
+        firstError = error;
+        firstStackTrace = stackTrace;
+        return await _handleToolError(
+            error, stackTrace, verbose, args, reportCrashes, getVersion);
+      }
+    }, onError: (Object error, StackTrace stackTrace) async {
+      // If sending a crash report throws an error into the zone, we don't want
+      // to re-try sending the crash report with *that* error. Rather, we want
+      // to send the original error that triggered the crash report.
+      final Object e = firstError ?? error;
+      final StackTrace s = firstStackTrace ?? stackTrace;
+      await _handleToolError(e, s, verbose, args, reportCrashes, getVersion);
+    });
+  }, overrides: overrides);
+}
+
+Future<int> _handleToolError(
+  dynamic error,
+  StackTrace stackTrace,
+  bool verbose,
+  List<String> args,
+  bool reportCrashes,
+  String getFlutterVersion(),
+) async {
+  if (error is UsageException) {
+    printError('${error.message}\n');
+    printError(
+        "Run 'mgpcli -h' (or 'mgpcli <command> -h') for available mgpcli commands and options.");
+    // Argument error exit code.
+    return _exit(64);
+  } else if (error is ToolExit) {
+    if (error.message != null) printError(error.message);
+    if (verbose) printError('\n$stackTrace\n');
+    return _exit(error.exitCode ?? 1);
+  } else if (error is ProcessExit) {
+    // We've caught an exit code.
+    if (error.immediate) {
+      exit(error.exitCode);
+      return error.exitCode;
+    } else {
+      return _exit(error.exitCode);
+    }
+  } else {
+    // We've crashed; emit a log report.
+    stderr.writeln();
+
+    if (!reportCrashes) {
+      // Print the stack trace on the bots - don't write a crash report.
+      stderr.writeln('$error');
+      stderr.writeln(stackTrace.toString());
+      return _exit(1);
+    } else {
+      // Report to both [Usage] and [CrashReportSender].
+      flutterUsage.sendException(error);
+      await CrashReportSender.instance.sendReport(
+        error: error,
+        stackTrace: stackTrace,
+        getFlutterVersion: getFlutterVersion,
+        command: args.join(' '),
+      );
+
+      if (error is String)
+        stderr.writeln('Oops; mgpcli has exited unexpectedly: "$error".');
+      else
+        stderr.writeln('Oops; mgpcli has exited unexpectedly.');
+
+      try {
+        final File file =
+            await _createLocalCrashReport(args, error, stackTrace);
+        stderr.writeln(
+          'Crash report written to ${file.path};\n'
+              'please let us know at https://github.com/wuba/magpie_workflow/issues.',
+        );
+        return _exit(1);
+      } catch (error) {
+        stderr.writeln(
+          'Unable to generate crash report due to secondary error: $error\n'
+              'please let us know at https://github.com/wuba/magpie_workflow/issues.',
+        );
+        // Any exception throw here (including one thrown by `_exit()`) will
+        // get caught by our zone's `onError` handler. In order to avoid an
+        // infinite error loop, we throw an error that is recognized above
+        // and will trigger an immediate exit.
+        throw ProcessExit(1, immediate: true);
+      }
+    }
+  }
+}
+
+/// File system used by the crash reporting logic.
+///
+/// We do not want to use the file system stored in the context because it may
+/// be recording. Additionally, in the case of a crash we do not trust the
+/// integrity of the [AppContext].
+@visibleForTesting
+FileSystem crashFileSystem = const LocalFileSystem();
+
+/// Saves the crash report to a local file.
+Future<File> _createLocalCrashReport(
+    List<String> args, dynamic error, StackTrace stackTrace) async {
+  File crashFile =
+      getUniqueFile(crashFileSystem.currentDirectory, 'mgpcli', 'log');
+
+  final StringBuffer buffer = StringBuffer();
+
+  buffer.writeln('mgpcli crash report; please file at https://github.com/wuba/magpie_workflow/issues.\n');
+
+  buffer.writeln('## command\n');
+  buffer.writeln('mgpcli ${args.join(' ')}\n');
+
+  buffer.writeln('## exception\n');
+  buffer.writeln('${error.runtimeType}: $error\n');
+  buffer.writeln('```\n$stackTrace```\n');
+
+  buffer.writeln('## mgpcli doctor\n');
+  buffer.writeln('```\n${await _doctorText()}```');
+
+  try {
+    await crashFile.writeAsString(buffer.toString());
+  } on FileSystemException catch (_) {
+    // Fallback to the system temporary directory.
+    crashFile =
+        getUniqueFile(crashFileSystem.systemTempDirectory, 'mgpcli', 'log');
+    try {
+      await crashFile.writeAsString(buffer.toString());
+    } on FileSystemException catch (e) {
+      printError('Could not write crash report to disk: $e');
+      printError(buffer.toString());
+    }
+  }
+
+  return crashFile;
+}
+
+Future<String> _doctorText() async {
+  try {
+    final BufferLogger logger = BufferLogger();
+
+    await context.run<bool>(
+      body: () => doctor.diagnose(verbose: true),
+      overrides: <Type, Generator>{
+        Logger: () => logger,
+      },
+    );
+
+    return logger.statusText;
+  } catch (error, trace) {
+    return 'encountered exception: $error\n\n${trace.toString().trim()}\n';
+  }
+}
+
+Future<int> _exit(int code) async {
+  if (flutterUsage.isFirstRun) flutterUsage.printWelcome();
+
+  // Send any last analytics calls that are in progress without overly delaying
+  // the tool's exit (we wait a maximum of 250ms).
+  if (flutterUsage.enabled) {
+    final Stopwatch stopwatch = Stopwatch()..start();
+    await flutterUsage.ensureAnalyticsSent();
+    printTrace('ensureAnalyticsSent: ${stopwatch.elapsedMilliseconds}ms');
+  }
+
+  // Run shutdown hooks before flushing logs
+  await runShutdownHooks();
+
+  final Completer<void> completer = Completer<void>();
+
+  // Give the task / timer queue one cycle through before we hard exit.
+  Timer.run(() {
+    try {
+      printTrace('exiting with code $code');
+      exit(code);
+      completer.complete();
+    } catch (error, stackTrace) {
+      completer.completeError(error, stackTrace);
+    }
+  });
+
+  await completer.future;
+  return code;
+}

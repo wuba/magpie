@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+##################################################################
+##
+##  setup local cli with source path
+##
+##
+##  Author: Chaobin Wu
+##  Email : chaobinwu89@gmail.com
+##
+#################################################################
+
+die() {
+  echo "$*"
+  exit 1
+}
+
+workflow() {
+  echo "update workflow deps"
+  flutter pub get
+}
+
+server() {
+  echo "update server deps"
+  cd server && pub get && cd ../
+}
+
+cli(){
+  echo "update cli deps"
+  cd ../ && pub get && cd workflow
+}
+
+echo "compile workflow into cli"
+workflow && server && cli
+if [ ! $? = 0 ]; then
+  die "build failed"
+fi
+if [ "$1" == "--dry-run" ]; then
+  echo "use pre-compiled workflow"
+else
+  echo "compile workflow"
+  ./deploy -cli
+fi
+
+echo "setup local cli with pub"
+pub global activate --source path ../ --overwrite

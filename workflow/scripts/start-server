@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+##################################################################
+##
+##  Start server app, server/bin/www.dart
+##
+##
+##  Author: Chaobin Wu
+##  Email : chaobinwu89@gmail.com
+##
+#################################################################
+die() {
+  echo "$*"
+  exit 1
+}
+
+run() {
+  read -p "Input directory as workspace: " workspace
+  if [[ $workspace != /* ]] ; then
+    die "Please use absolute path, eg: /Users"
+  fi
+  if [ -d "$workspace" ]; then
+    echo "Workspace => $workspace"
+  else
+    echo "Invalid directory: $workspace"
+    workspace=`pwd`
+    echo "Use current directory: $workspace"
+  fi
+  $1 server/bin/www.dart -r "../../build/web/" -w $workspace
+}
+if [ -d "build/web" ]; then
+  echo "use exist build/web, execute [flutter build web] to update"
+else
+  flutter build web
+  if [ ! $? = 0 ]; then
+    die "build web failed"
+  fi
+fi
+
+dart_path=`which dart`
+if [[ -n $dart_path ]]; then
+  run $dart_path
+else
+  echo "dart not found"
+  flutter_path=`which flutter`
+  if [[ ! -n $flutter_path ]]; then
+    echo "flutter not found"
+    die "start server failed"
+  fi
+  flutter_bin="${flutter_path%/*}"
+  if [ -f "$flutter_bin/cache/dart-sdk/bin/dart" ]; then
+    echo "use dart-sdk along with flutter"
+    run "$flutter_bin/cache/dart-sdk/bin/dart"
+  else
+    die "start server failed"
+  fi
+fi

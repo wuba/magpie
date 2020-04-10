@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+##################################################################
+##
+##  Generate template doc file
+##
+##
+##  Author: Chaobin Wu
+##  Email : chaobinwu89@gmail.com
+##
+#################################################################
+arg="file_name"
+if [ $# == 0 ]; then
+  script="${0##*/}"
+  echo "Usage: $script $arg"
+  exit 1
+fi
+die() {
+  echo "$*"
+  exit 1
+}
+
+name=$1
+if [ -f "$md" ]; then
+  die "文档已经存在，请更换名字"
+fi
+current=`pwd`
+md="$current/doc/module_$name.md"
+touch $md
+time=`date +%Y.%m.%d`
+user=`whoami`
+echo "# 模块标题" >> $md
+echo "" >> $md
+echo "| 时间         | 说明        | 修改人  |" >>$md
+echo "| ---------- | --------- | --------  |" >> $md
+echo "|  $time     | xxx       | $user     |" >> $md
+echo "|            |           |           |" >> $md
+echo "" >> $md
+
+echo "## 模块设计" >> $md
+echo "简述模块功能，以及核心设计思想，如流程图，代码介绍" >> $md
+echo "" >> $md
+
+echo "## 预览" >> $md
+echo "提供模块的可视化预览说明" >> $md
+echo "" >> $md
+
+echo "文档创建完成，请打开后编辑 $md"
+
+

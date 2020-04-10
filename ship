@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+##################################################################
+##
+##  Ship a new version of cli to pub.dev
+##
+##
+##  Author: Chaobin Wu
+##  Email : chaobinwu89@gmail.com
+##
+#################################################################
+die() {
+  echo "$*"
+  exit 1
+}
+
+echo "Try to ship cli to pub.dev"
+clean() {
+  if [ -d "stash" ]; then
+    mv stash workflow
+  fi
+}
+echo "Step.1 Ignore stashed files"
+if [  -d "workflow" ]; then
+  mv workflow stash
+fi
+
+echo "Step.2 Generate version and release configuration"
+echo "Read version form pubspec.yaml"
+verionText=$(grep version: < pubspec.yaml)
+split=(${verionText//:/})
+version="${split[1]}"
+{
+  echo "/// This file will be updated when ship to pub.dev."
+  echo "/// Do not modify manually."
+  echo "///"
+  echo "/// Date: $(date)"
+  echo "/// Author: $(whoami)"
+  echo "const VERSION_NAME = '$version';"
+  echo "const RELEASE = 1;"
+} > lib/utils/generated_config.dart
+
+echo "Step.3 publish --dry-run"
+flutter pub publish --dry-run
+if [ ! $? = 0 ]; then
+  clean
+  die "Please fix error before publish."
+fi
+
+read -r -p "Looks great! Are you ready to continue (y/n)? " input
+if [[ $input != 'y' ]]; then
+  clean
+  die "Shipping terminated!"
+fi
+flutter pub publish
+if [ ! $? = 0 ]; then
+  clean
+  die "Please fix error before publish."
+fi
+git tag -a "v$version" -m "Release of $version"
+git push -u origin "v$version"
+echo "Step.4 Ship completed!"
+clean

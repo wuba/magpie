@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+##################################################################
+##
+##  Make a release package of the workflow, including the static
+##  web resources and server side.
+##
+##  Author: Chaobin Wu
+##  Email : chaobinwu89@gmail.com
+##
+#################################################################
+
+die() {
+  echo "$*"
+  exit 1
+}
+
+value=$(<build_number)
+echo "old build num : $value"
+newValue=$((value+1))
+echo "new build num : $newValue"
+echo $newValue > build_number
+
+flutter_path=`which flutter`
+if [[ ! -n $flutter_path ]]; then
+  die "flutter not found"
+fi
+flutter clean
+rm -rf build && rm -rf server/build/
+echo "flutter build web"
+flutter build web
+
+if [ ! $? = 0 ]; then
+  die "build failed"
+fi
+
+if [ ! -d "build/web" ]; then
+  die "build/web can not be found."
+fi
+if [ -d "server/build" ]; then
+  rm -rf server/build
+fi
+mkdir server/build
+cp -rf build/web server/build/web
+time=$(date +%s)
+tar cvzf "server-$time.tar.gz" server/build/web/ server/lib server/bin server/analysis_options.yaml server/pubspec.yaml
+
+if [ ! $? = 0 ]; then
+  rm -rf "server-$time.tar.gz"
+  die "package failed"
+fi
+echo "package success => server-$time.tar.gz"
+
+if [ "$1" == "-cli" ]; then
+  mv "server-$time.tar.gz" ../bin/server.tar.gz
+  echo "move server-$time.tar.gz into bin/server.tar.gz"
+  ls -lah ../bin/server.tar.gz
+fi
