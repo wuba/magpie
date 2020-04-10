@@ -2,6 +2,9 @@
 
 [English](README.md) [中文说明](README-zh.md)
 
+[![Pub](https://img.shields.io/pub/v/magpie_cli.svg)](https://pub.dartlang.org/packages/magpie_cli)
+[![License](https://img.shields.io/badge/license-BSD-green.svg)](LICENSE)
+
 Magpie Workflow is a visualized platform which designed to create, develop and compile your 
 standalone flutter module;
 
@@ -79,6 +82,20 @@ As we mentioned previously, `Magpie` has multiple sub-projects;
 * cli: go to [cli](CLI.md)
 * workflow web/server: go to [workflow](workflow/README.md)
 
+Magpie contains some separated projects, you may check out these codebase as listed bellow:
+
+> Magpie Native&Dart SDK
+
+
+Work with Magpie Workflow, it's native sdk which should be integrated into App. [https://github.com/wuba/magpie](https://github.com/wuba/magpie)
+
+> Magpie Fly 
+
+A Flutter UIKit.[https://github.com/wuba/magpie_fly](https://github.com/wuba/magpie_fly)
+
+> Magpie Log
+
+A visualized dynamic programme for log collection based on flutter. [https://github.com/wuba/magpie_log](https://github.com/wuba/magpie_log)
 
 ## About
 
