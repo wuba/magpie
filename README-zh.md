@@ -84,6 +84,20 @@ mgpcli start
 * CLi部分，请参考[脚手架](CLI.md)
 * Workflow部分，请参考[Workflow](workflow/README.md)
 
+Mapie包含了一系列的开源项目，访问对应仓库以便了解更多。
+
+> Magpie Native&Dart SDK
+
+与Workflow配套，用于接入App，Flutter的SDK。[https://github.com/wuba/magpie](https://github.com/wuba/magpie)
+
+> Magpie Fly 
+
+所见即所得的Flutter UI组件库。[https://github.com/wuba/magpie_fly][https://github.com/wuba/magpie_fly]
+
+> Magpie Log
+
+适用于Flutter平台下的圈选埋点库。[https://github.com/wuba/magpie_log](https://github.com/wuba/magpie_log)
+
 ## 关于我们
 
 本项目由58Magpie技术团队开发/维护，项目离不开所有小伙伴们的积极参与(排序不分先后)：
