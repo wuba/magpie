@@ -62,14 +62,14 @@ class _BaseInfoPageState extends State<BaseInfoPage> {
             },
           ),
           _buildCliItemColumnOption(
-              _buildText('Magpie SDK:'),
+              _buildText('Magpie SDK: '),
               _buildText(
                 downUrl,
                 fontColor: Colors.blue,
               ),
               downUrl),
           _buildCliItemColumnOption(
-              _buildText('Magpie Doc:'),
+              _buildText('Magpie Doc: '),
               _buildText(
                 docUrl,
                 fontColor: Colors.blue,

@@ -1,5 +1,5 @@
 ## Release模块帮助文档
-如果对MagpieSDK集成到App的操作不清楚，请查看项目说明 [https://github.com/wuba/magpie](https://github.com/wuba/magpie)
+如果对MagpieSDK集成到App的操作不清楚，请查看项目说明 [https://github.com/wuba/magpie_sdk](https://github.com/wuba/magpie_sdk)
 
 下面介绍基础的打包相关配置操作。
 
