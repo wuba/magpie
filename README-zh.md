@@ -91,7 +91,7 @@ Magpie包含了一系列的开源项目，访问对应仓库以便了解更多�
 
 > Magpie Native&Dart SDK
 
-与Workflow配套，用于接入App，Flutter的SDK。[https://github.com/wuba/magpie](https://github.com/wuba/magpie)
+与Workflow配套，用于接入App，Flutter的SDK。[https://github.com/wuba/magpie_sdk](https://github.com/wuba/magpie_sdk)
 
 > Magpie Fly 
 

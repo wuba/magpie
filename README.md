@@ -86,8 +86,7 @@ Magpie contains some separated projects, you may check out these codebase as lis
 
 > Magpie Native&Dart SDK
 
-
-Work with Magpie Workflow, it's native sdk which should be integrated into App. [https://github.com/wuba/magpie](https://github.com/wuba/magpie)
+Work with Magpie Workflow, it's native sdk which should be integrated into App. [https://github.com/wuba/magpie_sdk](https://github.com/wuba/magpie_sdk)
 
 > Magpie Fly 
 
