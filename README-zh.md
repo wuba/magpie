@@ -2,6 +2,9 @@
 
 [English](README.md) [中文说明](README-zh.md)
 
+[![Pub](https://img.shields.io/pub/v/magpie_cli.svg)](https://pub.dartlang.org/packages/magpie_cli)
+[![License](https://img.shields.io/badge/license-BSD-green.svg)](LICENSE)
+
 Magpie Workflow 是一个Flutter开发的工具流，实现独立Flutter模块的创建，开发，编译，打包，上传流程。
 Magpie Workflow is a visualized platform which designed to create, develop and compile your 
 standalone flutter module.
@@ -84,7 +87,7 @@ mgpcli start
 * CLi部分，请参考[脚手架](CLI.md)
 * Workflow部分，请参考[Workflow](workflow/README.md)
 
-Mapie包含了一系列的开源项目，访问对应仓库以便了解更多。
+Magpie包含了一系列的开源项目，访问对应仓库以便了解更多。
 
 > Magpie Native&Dart SDK
 
@@ -92,7 +95,7 @@ Mapie包含了一系列的开源项目，访问对应仓库以便了解更多。
 
 > Magpie Fly 
 
-所见即所得的Flutter UI组件库。[https://github.com/wuba/magpie_fly][https://github.com/wuba/magpie_fly]
+所见即所得的Flutter UI组件库。[https://github.com/wuba/magpie_fly](https://github.com/wuba/magpie_fly)
 
 > Magpie Log
 
