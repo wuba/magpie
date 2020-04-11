@@ -91,8 +91,8 @@ class ServiceCommand extends MpcliCommand {
       jsonData['dartkVersion'] = flutterVersion.dartSdkVersion;
       jsonData['enginekVersion'] = flutterVersion.engineRevision;
       // 替换为开源地址
-      jsonData['wbsdkDownloadUrl'] = 'https://github.com/wuba/magpie';
-      jsonData['wbsdk_docUrl'] = 'https://github.com/wuba/magpie/blob/master/README.md';
+      jsonData['wbsdkDownloadUrl'] = 'https://github.com/wuba/magpie_sdk';
+      jsonData['wbsdk_docUrl'] = 'https://github.com/wuba/magpie_sdk/blob/master/README.md';
       const JsonEncoder jsonEncoder = JsonEncoder.withIndent('  ');
       await http
           .get('http://$domain/api/baseinfo/sdk?data=' +
