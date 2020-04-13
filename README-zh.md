@@ -3,10 +3,11 @@
 [English](README.md) [中文说明](README-zh.md)
 
 [![Pub](https://img.shields.io/pub/v/magpie_cli.svg)](https://pub.dartlang.org/packages/magpie_cli)
+[![Platform](https://img.shields.io/badge/platform-mac%7Cwin%7Clinux-blue)](https://github.com/wuba/magpie)
 [![License](https://img.shields.io/badge/license-BSD-green.svg)](LICENSE)
 
 Magpie Workflow 是一个Flutter开发的工具流，实现独立Flutter模块的创建，开发，编译，打包，上传流程。
-Magpie Workflow is a visualized platform which designed to create, develop and compile your 
+Magpie Workflow is a visualized platform which is designed to create, develop and compile your 
 standalone flutter module.
 
 希望通过这种方式来简化Flutter混合开发的复杂度，成为连接开发者与Flutter的桥梁，因此取名为Magpie Workflow。项目整体包含三部分：
@@ -23,39 +24,11 @@ standalone flutter module.
 
 ### 脚手架安装
 
-确保您安装并正确配置了flutter环境，flutter版本支持**1.12.x**。
-
-#### a. macOS环境变量配置
-flutter环境变量配置
-```
-export PATH=/*flutter directory*/flutter/bin:$PATH
-```
-
-同时建议配置`dart`相关的环境变量，方便`pub`的使用
-
-```
-export PATH="/*flutter directory*/flutter/bin/cache/dart-sdk/bin:$PATH"
-export PATH="$PATH":"$HOME/.pub-cache/bin"
-```
-#### b. Windows环境变量配置
-flutter环境变量配置，在用户变量中选择`PATH`，双击后在末尾增加如下配置
-```
-\*flutter directory*\flutter\bin;
-```
-同时建议配置`dart`相关的环境变量，方便`pub`的使用
-```
-\*flutter directory*\flutter\bin\cache\dart-sdk\bin;
-C:\Users\{替换用户名}\AppData\Roaming\Pub\Cache\bin
-```
-
-通过如上环境配置后，再运行pub命令安装mgpcli脚手架 (如何让环境变量生效 --- 可以关闭原有终端窗口再重新打开新终端)
-(如果使用flutter pub安装，需要替换上面Pub-Cache的路径为flutter安装路径)
+确保您安装并正确配置了flutter环境与dart相关路径[Magpie 脚手架#环境配置](CLI.md)，flutter版本支持**1.12.x**。
 
 ```shell
 pub global activate magpie_cli
 ```
-
-脚手架的开发/编译，请参考[mgpcli 脚手架](CLI.md)
 
 ### workflow使用
 

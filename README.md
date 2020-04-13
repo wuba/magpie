@@ -3,12 +3,13 @@
 [English](README.md) [中文说明](README-zh.md)
 
 [![Pub](https://img.shields.io/pub/v/magpie_cli.svg)](https://pub.dartlang.org/packages/magpie_cli)
+[![Platform](https://img.shields.io/badge/platform-mac%7Cwin%7Clinux-blue)](https://github.com/wuba/magpie)
 [![License](https://img.shields.io/badge/license-BSD-green.svg)](LICENSE)
 
-Magpie Workflow is a visualized platform which designed to create, develop and compile your 
+Magpie Workflow is a visualized platform which is designed to create, develop and compile your 
 standalone flutter module;
 
-It's designed to manage the complexity of building mixed flutter apps,  connect developers and flutter like the magpie bridge. This project has three parts:
+It's designed to manage the complexity of building mixed flutter apps,  connect developers and flutter like the Magpie Bridge. This project has three parts:
 * cli: similar to flutter tool, used to create template project and start the web server;
 * workflow web： A flutter-web application used to develop & compile the flutter module;
 * workflow server：A dart server work with flutter-web;
@@ -21,34 +22,8 @@ It's designed to manage the complexity of building mixed flutter apps,  connect 
 
 ### Install cli
 
-> Make sure you have already installed the flutter sdk, the version should be **v1.12.x**
-
-#### a. macOS ENV
-
-```
-export PATH=/*flutter directory*/flutter/bin:$PATH
-```
-
-You should set `dart` path too, so you can use `pub` directly;
-
-```
-export PATH="/*flutter directory*/flutter/bin/cache/dart-sdk/bin:$PATH"
-export PATH="$PATH":"$HOME/.pub-cache/bin"
-```
-#### b. Windows ENV
-Update windows `PATH` by appending the flutter bin
-
-```
-\*flutter directory*\flutter\bin;
-```
-`dart` configuration
-
-```
-\*flutter directory*\flutter\bin\cache\dart-sdk\bin;
-C:\Users\{user home}\AppData\Roaming\Pub\Cache\bin
-```
-
-The pub cache path can be different when you use flutter pub or pub, make sure you've configured correctly; 
+Make sure you have already installed the flutter sdk, the version should be **v1.12.x**
+If you haven't configure the flutter and dart environment， follow the guide at [Magpie CLI#environment](CLI.md)。
 
 ```shell
 pub global activate magpie_cli
@@ -76,13 +51,13 @@ mgpcli start
 
 The browser should  have been opened instantly，[http://127.0.0.1:8080](http://127.0.0.1:8080)
 
-## Contribute
-As we mentioned previously, `Magpie` has multiple sub-projects;
+## Contribution
+As we mentioned previously, `Magpie` has multi-parts;
 
 * cli: go to [cli](CLI.md)
 * workflow web/server: go to [workflow](workflow/README.md)
 
-Magpie contains some separated projects, you may check out these codebase as listed bellow:
+Magpie also has some relative projects, you may check out these codebase as listed bellow:
 
 > Magpie Native&Dart SDK
 
