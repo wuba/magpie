@@ -1,14 +1,11 @@
-name: CI
+name: build
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
     name: build on ${{ matrix.os }}
@@ -17,31 +14,18 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - name: Repo action
-        run: echo repository is ready！
-
-      - name: Flutter ENV action
-        uses: subosito/flutter-action@v1.2.0
+      - uses: actions/checkout@v1
+      - uses: subosito/flutter-action@v1
         with:
-          flutter-version: '1.12.13+hotfix.5'
+          flutter-version: '1.12.x'
           channel: 'beta'
 
-      - name: Flutter web build action
+      - run: flutter config --enable-web
+      - name: Flutter web build
         working-directory: workflow
         run: |
-          flutter config --enable-web
           flutter pub get
           flutter build web
-
-      - name: Server build action
-        run: |
-          echo TODO
-
-      - name: CLI build action
-        run: |
-          echo TODO
+      - run: echo TODO Server build action
+      - run: echo TODO CLI build action
