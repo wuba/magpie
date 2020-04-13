@@ -5,11 +5,12 @@
 [![Pub](https://img.shields.io/pub/v/magpie_cli.svg)](https://pub.dartlang.org/packages/magpie_cli)
 [![Platform](https://img.shields.io/badge/platform-mac%7Cwin%7Clinux-blue)](https://github.com/wuba/magpie)
 [![License](https://img.shields.io/badge/license-BSD-green.svg)](LICENSE)
+[![build](https://github.com/wuba/magpie/workflows/build/badge.svg)](https://github.com/wuba/magpie/actions)
 
 Magpie Workflow is a visualized platform which is designed to create, develop and compile your 
 standalone flutter module;
 
-It's designed to manage the complexity of building mixed flutter apps,  connect developers and flutter like the Magpie Bridge. This project has three parts:
+It's designed to manage the complexity of building mixed flutter apps, connect developers and flutter like the Magpie Bridge. This project has three parts:
 * cli: similar to flutter tool, used to create template project and start the web server;
 * workflow web： A flutter-web application used to develop & compile the flutter module;
 * workflow server：A dart server work with flutter-web;
@@ -22,18 +23,17 @@ It's designed to manage the complexity of building mixed flutter apps,  connect 
 
 ### Install cli
 
-Make sure you have already installed the flutter sdk, the version should be **v1.12.x**
-If you haven't configure the flutter and dart environment， follow the guide at [Magpie CLI#environment](CLI.md)。
+Make sure you have already installed the flutter sdk, the version should be **v1.12.x**.  
+If you haven't configure the flutter and dart environment, follow the guide at [Magpie CLI#environment](CLI.md#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%85%8D%E7%BD%AE)。
 
 ```shell
 pub global activate magpie_cli
 ```
 
-For details about cli development, go to [cli](CLI.md).
-
 ### Start Workflow
 
 Since you've installed the `mgpcli`, you may start to create a flutter  module project now:
+
 **1.Create module project**
 
 ```shell
@@ -65,7 +65,7 @@ Work with Magpie Workflow, it's native sdk which should be integrated into App. 
 
 > Magpie Fly 
 
-A Flutter UIKit.[https://github.com/wuba/magpie_fly](https://github.com/wuba/magpie_fly)
+A Flutter UIKit. [https://github.com/wuba/magpie_fly](https://github.com/wuba/magpie_fly)
 
 > Magpie Log
 
