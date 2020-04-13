@@ -1,0 +1,31 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.12.x'
+          channel: 'beta'
+
+      - run: flutter config --enable-web
+      - name: Flutter web build
+        working-directory: workflow
+        run: |
+          flutter pub get
+          flutter build web
+      - run: echo TODO Server build action
+      - run: echo TODO CLI build action
