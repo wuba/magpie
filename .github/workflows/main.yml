@@ -21,11 +21,16 @@ jobs:
           flutter-version: '1.12.x'
           channel: 'beta'
 
+      - run: dart --version
+      - run: flutter --version
       - run: flutter config --enable-web
       - name: Flutter web build
         working-directory: workflow
         run: |
           flutter pub get
           flutter build web
-      - run: echo TODO Server build action
-      - run: echo TODO CLI build action
+      - name: CLI example build
+        working-directory: example
+        run: |
+          flutter pub get
+          dart bin/main.dart
