@@ -2,7 +2,6 @@
 .dart_tool/
 *.iml
 
-.magpie
 .packages
 .pub/
 
