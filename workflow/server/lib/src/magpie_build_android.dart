@@ -2,17 +2,14 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:file/file.dart';
-import 'tools/base/os.dart';
 import 'package:meta/meta.dart';
 
 import 'controller/log_controller.dart';
 import 'tools/android/gradle_utils.dart';
 import 'tools/base/common.dart';
 import 'tools/base/file_system.dart';
-import 'tools/base/logger.dart';
 import 'tools/base/platform.dart';
 import 'tools/base/process.dart';
-import 'tools/base/user_messages.dart';
 import 'tools/build_info.dart';
 import 'tools/cache.dart';
 import 'tools/flutter_manifest.dart';
@@ -40,25 +37,6 @@ class FlutterOptions {
   FlutterOptions() {
 
   }
-
-//  void addBuildModeFlags() {
-//
-//    _argParser.addFlag(
-//      'debug',
-//      defaultsTo: true,
-//      help: 'Build a debug version of the current project.',
-//    );
-//    _argParser.addFlag(
-//      'profile',
-//      defaultsTo: true,
-//      help: 'Build a version of the current project specialized for performance profiling.',
-//    );
-//    _argParser.addFlag(
-//      'release',
-//      defaultsTo: true,
-//      help: 'Build a release version of the current project.',
-//    );
-//  }
 
   void usesPubOption() {
     _argParser.addFlag('pub',
@@ -108,44 +86,6 @@ class FlutterOptions {
   List<String> stringsArg(String name) => _argResults[name] as List<String>;
   /// Gets the parsed command-line option named [name] as `String`.
   String stringArg(String name) => _argResults[name] as String;
-
-
-  static String get defaultFlutterRoot {
-    if (platform.environment.containsKey(kFlutterRootEnvironmentVariableName)) {
-      return platform.environment[kFlutterRootEnvironmentVariableName];
-    }
-    try {
-      if (platform.script.scheme == 'data') {
-        return '../..'; // we're running as a test
-      }
-
-      if (platform.script.scheme == 'package') {
-        final String packageConfigPath = Uri.parse(platform.packageConfig).toFilePath();
-        return fs.path.dirname(fs.path.dirname(fs.path.dirname(packageConfigPath)));
-      }
-
-      final String script = platform.script.toFilePath();
-      if (fs.path.basename(script) == kSnapshotFileName) {
-        return fs.path.dirname(fs.path.dirname(fs.path.dirname(script)));
-      }
-      if (fs.path.basename(script) == kFlutterToolsScriptFileName) {
-        return fs.path.dirname(fs.path.dirname(fs.path.dirname(fs.path.dirname(script))));
-      }
-
-      // If run from a bare script within the repo.
-      if (script.contains('flutter/packages/')) {
-        return script.substring(0, script.indexOf('flutter/packages/') + 8);
-      }
-      if (script.contains('flutter/examples/')) {
-        return script.substring(0, script.indexOf('flutter/examples/') + 8);
-      }
-    } catch (error) {
-      // we don't have a logger at the time this is run
-      // (which is why we don't use printTrace here)
-      print(userMessages.runnerNoRoot('$error'));
-    }
-    return '.';
-  }
 }
 
 /**
@@ -212,7 +152,7 @@ Future<int> magpieBuildAndroid(List<String> args) async {
   }
 
   if (projectDir.existsSync()) {
-    print('目录: ' + projectDir.path + " 权限修改");
+//    print('目录: ' + projectDir.path + " 权限修改");
     //os.chmod(projectDir, '777');
   }
 
@@ -243,7 +183,7 @@ Future<int> magpieBuildAndroid(List<String> args) async {
     }
     logToClient("INFO", '构建完成...', DateTime.now());
     if(outputDirectoryPath == null) {
-      outputDirectoryPath = '${targetPath}/build/host';
+      outputDirectoryPath = fs.directory(targetPath).childDirectory('build').childDirectory('host').path;
     }
     await openBuildFolder(outputDirectoryPath,platform.environment,targetPath);
     return Future.value(1);
@@ -264,7 +204,7 @@ void pubGet(String flutterRoot, String targetPath) async {
 
   print('pub get开始...');
   final List<String> pubGetCommand = <String>[
-    '${flutterRoot}/bin/flutter',
+    fs.directory(flutterRoot).childDirectory('bin').childFile('flutter').path,
     'pub',
     'get'
   ];
@@ -285,6 +225,7 @@ void pubGet(String flutterRoot, String targetPath) async {
 
 void openBuildFolder(
     String productPath, Map<String, String> androidDeployEnv, targetPath) async {
+
   final List<String> openProductCommand = <String>['open', '${productPath}'];
   int openResult = await processUtils.stream(
     openProductCommand,

@@ -23,9 +23,10 @@ class ReleaseController extends BaseController{
 
   ///Release编译
   Future build(Platforms platform, Context ctx) async{
+
     String plat = platform.toString();
-    Map form = ctx.query;
-    String targetPath = form['tPath'];
+    String targetPath = ctx.query.get('tPath');
+    bool debugBuild = ctx.query.getBool('debug', false);
     String flutterPath = await getFlutterRootPath();
     LoggerUtil.i(flutterPath);
 
@@ -36,11 +37,13 @@ class ReleaseController extends BaseController{
       var result = 0;
       if(platform == Platforms.Android){
         result = await LoggerUtil.logRunZone(() async{
-          return await magpieBuildAndroid(['-f',flutterPath,'-t',targetPath,'-b','release']);
+          return await magpieBuildAndroid(['-f',flutterPath,'-t',targetPath,'-b',debugBuild?'debug':'release']);
         });
       }else if(platform == Platforms.Ios){
         result = await LoggerUtil.logRunZone(() async{
-          return await magpieBuildIOS(['-f',flutterPath,'-t',targetPath]);
+          return await debugBuild
+              ? magpieBuildIOSDebug(['-f', flutterPath, '-t', targetPath])
+              : magpieBuildIOS(['-f', flutterPath, '-t', targetPath]);
         });
       }
 
