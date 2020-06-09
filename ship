@@ -56,12 +56,14 @@ if [ ! $? = 0 ]; then
   clean
   die "Please fix error before publish."
 fi
-read -r -p "git commit local changes, and backup with git tag(y/n)? " yes
+read -r -p "swith window to commit local changes manually, then backup with git tag(y/n)? " yes
 if [[ $yes != 'y' ]]; then
   clean
   die "Shipping terminated!"
 fi
+echo "backup with tag v$version"
 git tag -a "v$version" -m "Release of $version"
+echo "git push remote"
 git push -u origin "v$version"
 echo "Step.4 Ship completed!"
 clean
