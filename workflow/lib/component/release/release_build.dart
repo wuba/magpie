@@ -21,6 +21,7 @@ class ReleaseBuild extends StatefulWidget {
 class _ReleaseBuildState extends State<ReleaseBuild> {
   bool isIosBuilding = false;
   bool isAndroidBuilding = false;
+  bool debugMode = false;
   final _tPathController = TextEditingController(); //目标目录
 
   @override
@@ -60,6 +61,21 @@ class _ReleaseBuildState extends State<ReleaseBuild> {
               ),
             ),
             Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 0)),
+            Row(
+              children: <Widget>[
+                Checkbox(
+                  checkColor: Colors.white,
+                  activeColor: Theme.of(context).hoverColor,
+                  value: debugMode,
+                  onChanged: (v) {
+                    setState(() {
+                      debugMode = v;
+                    });
+                  },
+                ),
+                Text('勾选后，构建产物为Debug模式')
+              ],
+            ),
             Stack(
               children: <Widget>[
                 Align(
@@ -130,7 +146,10 @@ class _ReleaseBuildState extends State<ReleaseBuild> {
       isIosBuilding = !isAndroid;
       isAndroidBuilding = isAndroid;
     });
-    var param = {'tPath': _tPathController.text};
+    var param = {
+      'tPath': _tPathController.text,
+      'debug': debugMode,
+    };
 
     var url;
     if (isAndroid) {
