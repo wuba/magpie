@@ -454,14 +454,13 @@ Directory getRepoDirectory(Directory buildDirectory) {
 void deleteFile(FileSystemEntity file) {
   // This will throw a FileSystemException if the directory is missing permissions.
   try {
-    if (!file.existsSync()) {
+    if (file == null || !file.existsSync()) {
       return;
     }
   } on FileSystemException catch (err) {
     printError('Cannot clean ${file.path}.\n$err');
     return;
   }
-  final Status deletionStatus = StdoutLogger().startProgress('Deleting ${file.basename}...', timeout: timeoutConfiguration.fastOperation);
   try {
     file.deleteSync(recursive: true);
   } on FileSystemException catch (error) {
@@ -475,8 +474,6 @@ void deleteFile(FileSystemEntity file) {
     } else {
       printError('Failed to remove $path: $error');
     }
-  } finally {
-    deletionStatus.stop();
   }
 }
 
