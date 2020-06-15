@@ -13,6 +13,7 @@ import 'package:workflow/component/log/log_page.dart';
 import 'package:workflow/component/log/log_utils.dart';
 import 'package:workflow/component/release/release_main.dart';
 import 'package:workflow/model/menu_item.dart';
+import 'package:workflow/provider/buid_modle_provider.dart';
 import 'package:workflow/provider/log_state_provider.dart';
 import 'package:workflow/provider/runtime_provider.dart';
 import 'package:workflow/provider/shared_data_provider.dart';
@@ -29,6 +30,7 @@ void main() {
       ChangeNotifierProvider(create: (context) => SharedDataProvider()),
       ChangeNotifierProvider(create: (context) => LogStateProvider()),
       ChangeNotifierProvider(create: (context) => RuntimeProvider()),
+      ChangeNotifierProvider(create: (context) => BuildModeProvider()),
     ],
     child: MyApp(),
   ));
@@ -80,6 +82,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     logManager.connectSocketClient();
     Provider.of<SharedDataProvider>(context, listen: false).update();
+    Provider.of<BuildModeProvider>(context, listen: false).sync();
     checkWorkspace().then((result) {
       var skipUpdate = result[0];
       var path = result[1];

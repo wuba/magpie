@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:workflow/component/log/log_utils.dart';
+import 'package:workflow/provider/buid_modle_provider.dart';
 import 'package:workflow/utils/dialog_util.dart';
 import 'package:workflow/utils/net_util.dart';
 import 'package:workflow/utils/sp_util.dart';
@@ -21,7 +23,9 @@ class ReleaseBuild extends StatefulWidget {
 class _ReleaseBuildState extends State<ReleaseBuild> {
   bool isIosBuilding = false;
   bool isAndroidBuilding = false;
-  bool debugMode = false;
+  var debugMode =
+      (ctx) => Provider.of<BuildModeProvider>(ctx, listen: false).mode;
+
   final _tPathController = TextEditingController(); //目标目录
 
   @override
@@ -63,17 +67,17 @@ class _ReleaseBuildState extends State<ReleaseBuild> {
             Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 0)),
             Row(
               children: <Widget>[
-                Checkbox(
-                  checkColor: Colors.white,
-                  activeColor: Theme.of(context).hoverColor,
-                  value: debugMode,
-                  onChanged: (v) {
-                    setState(() {
-                      debugMode = v;
-                    });
-                  },
+                Consumer<BuildModeProvider>(
+                  builder: (ctx, provider, child) => Checkbox(
+                    checkColor: Colors.white,
+                    activeColor: Theme.of(context).hoverColor,
+                    value: provider.mode,
+                    onChanged: (v) {
+                      provider.setBuildMode(v);
+                    },
+                  ),
                 ),
-                Text('勾选后，构建产物为Debug模式')
+                Text('勾选后，构建/上传将以Debug模式进行')
               ],
             ),
             Stack(
@@ -148,7 +152,7 @@ class _ReleaseBuildState extends State<ReleaseBuild> {
     });
     var param = {
       'tPath': _tPathController.text,
-      'debug': debugMode,
+      'debug': debugMode(context),
     };
 
     var url;
@@ -162,7 +166,7 @@ class _ReleaseBuildState extends State<ReleaseBuild> {
     try {
       Map value = jsonDecode(result);
       if (mounted) {
-        showInfoDialog(context, '${value['data']} ${value['msg']}');
+        showInfoDialog(context, '${value['data']} \n${value['msg']}');
       }
     } on Exception catch (error) {
       logger.info('编译错误:$error');

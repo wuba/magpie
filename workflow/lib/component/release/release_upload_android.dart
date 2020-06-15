@@ -1,13 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:workflow/component/log/log_utils.dart';
+import 'package:workflow/provider/buid_modle_provider.dart';
 import 'package:workflow/utils/dialog_util.dart';
 import 'package:workflow/utils/net_util.dart';
 import 'package:workflow/utils/sp_util.dart';
 
-import '../widget/inputdecoration_extension.dart';
 import '../widget/button.dart';
+import '../widget/inputdecoration_extension.dart';
 
 ///安卓aar发布
 class ReleaseUploadAndroid extends StatefulWidget {
@@ -84,7 +86,11 @@ class _ReleaseUploadAndroidState extends State<ReleaseUploadAndroid> {
     setState(() {
       isUploading = true;
     });
-    var param = {'tPath': tPath, 'versionTag': _gitTagVersionController.text};
+    var param = {
+      'tPath': tPath,
+      'versionTag': _gitTagVersionController.text,
+      'debug': Provider.of<BuildModeProvider>(context, listen: false).mode,
+    };
 
     String result = await NetUtils.post('/api/release/upload_android', param);
     logger.info('AAR上传结果:$result');

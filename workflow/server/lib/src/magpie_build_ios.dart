@@ -1,12 +1,15 @@
+import 'dart:io';
+
 import 'package:args/args.dart';
+
+import 'magpie_plugin.dart';
 import 'magpie_plugin_ios.dart';
 import 'magpie_utils.dart';
+import 'model.dart';
 import 'tools/base/file_system.dart';
-import 'tools/macos/xcode.dart';
 import 'tools/base/platform.dart';
 import 'tools/base/process.dart';
-import 'dart:io';
-import 'magpie_plugin.dart';
+import 'tools/macos/xcode.dart';
 
 /*
  * Des: Build App.framework Release Version
@@ -150,7 +153,7 @@ Future<int> magpieBuildIOS(List<String> args) async {
     "-t",
     "/Users/sac/magpie/example",
  */
-Future<int> magpieBuildIOSDebug(List<String> args) async {
+Future<Pair<int, String>> magpieBuildIOSDebug(List<String> args) async {
   ArgResults argResults = await parseArgs(args);
   String flutterRoot = argResults['flutterroot'];
   String targetPath = argResults['targetPath'];
@@ -160,7 +163,7 @@ Future<int> magpieBuildIOSDebug(List<String> args) async {
   }
   if (flutterRoot == null) {
     print('Error: Please use -f to locate the flutter install path');
-    return Future.value(-1);
+    return Pair(-1, 'Please use -f to locate the flutter install path');
   }
 
   String buildMode = "debug";
@@ -232,7 +235,7 @@ Future<int> magpieBuildIOSDebug(List<String> args) async {
     print('打Debug包成功');
   } else {
     print('ERROR：打Debug包失败');
-    return Future.value(-1);
+    return Pair(-1, '打Debug包失败');
   }
 
   await copyOtherFiles(
@@ -243,11 +246,14 @@ Future<int> magpieBuildIOSDebug(List<String> args) async {
   await writeScripts(productPath);
 
   await openBuildFolder(productPath, iosDeployEnv, targetPath);
-  return Future.value(1);
+  return Pair(1, productPath);
 }
 
 void openBuildFolder(
     String productPath, Map<String, String> iosDeployEnv, targetPath) async {
+  if (platform.isWindows) {
+    return print('构建产物位于:$productPath');
+  }
   final List<String> openProductCommand = <String>['open', '${productPath}'];
   int openResult = await processUtils.stream(
     openProductCommand,
