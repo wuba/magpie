@@ -6,7 +6,6 @@ import 'release_upload_ios.dart';
 
 ///上传发布
 class ReleaseUpload extends StatelessWidget {
-  bool debugMode = false;
 
   @override
   Widget build(BuildContext context) {
