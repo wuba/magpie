@@ -5,6 +5,7 @@ import 'package:file/file.dart';
 import 'package:meta/meta.dart';
 
 import 'controller/log_controller.dart';
+import 'model.dart';
 import 'tools/android/gradle_utils.dart';
 import 'tools/base/common.dart';
 import 'tools/base/file_system.dart';
@@ -92,7 +93,7 @@ class FlutterOptions {
  * 构建入口方法
  * magpieBuildAndroid
  */
-Future<int> magpieBuildAndroid(List<String> args) async {
+Future<Pair<int, String>> magpieBuildAndroid(List<String> args) async {
   FlutterOptions flutterOptions = FlutterOptions();
 
   flutterOptions.usesFlavorOption();
@@ -133,9 +134,9 @@ Future<int> magpieBuildAndroid(List<String> args) async {
   final String flutterRoot = argResults['flutter-root'];
   Cache.flutterRoot = fs.path.normalize(fs.path.absolute(flutterRoot));
   print('flutterRoot:$flutterRoot');
-  if(Cache.flutterRoot == null) {
+  if (Cache.flutterRoot == null) {
     print('Error: Please use -f to locate the flutter install path');
-    return Future.value(-1);
+    return Pair(-1, 'Please use -f to locate the flutter install path');
   }
 
   String targetPath = flutterOptions.stringArg('target-path');
@@ -151,16 +152,10 @@ Future<int> magpieBuildAndroid(List<String> args) async {
     project = FlutterProject.fromDirectory(projectDir);
   }
 
-  if (projectDir.existsSync()) {
-//    print('目录: ' + projectDir.path + " 权限修改");
-    //os.chmod(projectDir, '777');
+  var pubResult = await pubGet(flutterRoot, targetPath);
+  if (pubResult.first < 0) {
+    return Pair(-1, pubResult.second);
   }
-
-  //pub get
-  //if(flutterOptions.boolArg('pub')) {
-    await pubGet(flutterRoot, targetPath);
-  //}
-
   //删除旧文件
   await cleanCommand(project);
 
@@ -176,28 +171,33 @@ Future<int> magpieBuildAndroid(List<String> args) async {
     logToClient("INFO", '开始构建...', DateTime.now());
     for (AndroidBuildInfo androidBuildInfo in androidBuildInfo) {
       await buildGradleAar(
-          project:project,
-          androidBuildInfo:androidBuildInfo,
-          target:'',
-          outputDirectory:outputDirectory);
+          project: project,
+          androidBuildInfo: androidBuildInfo,
+          target: '',
+          outputDirectory: outputDirectory);
     }
     logToClient("INFO", '构建完成...', DateTime.now());
-    if(outputDirectoryPath == null) {
-      outputDirectoryPath = fs.directory(targetPath).childDirectory('build').childDirectory('host').path;
+    if (outputDirectoryPath == null) {
+      outputDirectoryPath = fs
+          .directory(targetPath)
+          .childDirectory('build')
+          .childDirectory('host')
+          .path;
     }
-    await openBuildFolder(outputDirectoryPath,platform.environment,targetPath);
-    return Future.value(1);
+    await openBuildFolder(
+        outputDirectoryPath, platform.environment, targetPath);
+    return Pair(1, outputDirectoryPath);
   } catch (e) {
-    logToClient("ERROR", e.toString(), DateTime.now());
+    var trace = e.toString();
+    logToClient("ERROR", trace, DateTime.now());
+    return Pair(-1, trace);
   } finally {
     //androidSdk.reinitialize();
   }
-  return Future.value(0);
 }
 
 //Flutter pub get
-void pubGet(String flutterRoot, String targetPath) async {
-
+Future<Pair<int, String>> pubGet(String flutterRoot, String targetPath) async {
   Map<String, String> environment = <String, String>{
     'FLUTTER_ROOT': flutterRoot,
   };
@@ -217,15 +217,20 @@ void pubGet(String flutterRoot, String targetPath) async {
   );
   if (result == 0) {
     print('pub get 成功');
+    return Pair(0, 'pub get 成功');
   } else {
     logToClient("ERROR", "pub get 执行失败", DateTime.now());
+    return Pair(-1, 'pub get 执行失败');
   }
 }
 
 
 void openBuildFolder(
     String productPath, Map<String, String> androidDeployEnv, targetPath) async {
-
+  if (platform.isWindows) {
+    print('构建产物位于:$productPath');
+    return;
+  }
   final List<String> openProductCommand = <String>['open', '${productPath}'];
   int openResult = await processUtils.stream(
     openProductCommand,

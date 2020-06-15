@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:args/args.dart';
 import 'magpie_utils.dart';
+import 'model.dart';
 import 'tools/base/file_system.dart';
 import 'tools/base/process.dart';
 
@@ -25,7 +26,7 @@ import 'tools/base/process.dart';
     "1.0.0",
  */
 
-Future<int> magpieGitPush(List<String> args) async {
+Future<Pair<int, String>> magpieGitPush(List<String> args) async {
   ArgResults argResults = await parseArgs(args);
   String targetPath = argResults['targetPath'];
   String buildMode = argResults['buildMode'];
@@ -37,19 +38,19 @@ Future<int> magpieGitPush(List<String> args) async {
   }
   if (buildMode == null) {
     print('Error: Please use -m to set the build mode');
-    return Future.value(-1);
+    return Pair(-1, 'Please use -m to set the build mode');
   }
   if (source == null) {
     print('Error: Please use -s to set the git path');
-    return Future.value(-1);
+    return Pair(-1, 'Please use -s to set the git path');
   }
   if (localPath == null) {
     print('Error: Please use -l to set the local path');
-    return Future.value(-1);
+    return Pair(-1, 'Please use -l to set the local path');
   }
   if (version == null) {
     print('Error: Please use -v to set a branch or tag');
-    return Future.value(-1);
+    return Pair(-1, 'Please use -v to set a branch or tag');
   }
 
   pathHelper.configWithData(targetPath, buildMode);
@@ -170,9 +171,9 @@ Future<int> magpieGitPush(List<String> args) async {
       trace: true, workingDirectory: '${localPath}');
   if (pushResult == 0) {
     print('git push成功');
-    return 1;
+    return Pair(1, 'git push成功');
   } else {
     print('git push失败');
-    return -1;
+    return Pair(-1, 'git push失败');
   }
 }

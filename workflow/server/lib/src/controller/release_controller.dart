@@ -1,15 +1,17 @@
 import 'dart:async';
 
 import 'package:jaguar/jaguar.dart';
+
 import '../magpie_build_android.dart';
 import '../magpie_build_ios.dart';
 import '../magpie_git_push.dart';
 import '../magpie_maven_upload.dart';
+import '../model.dart';
+import '../response_bean.dart';
+import '../tools/base/platform.dart' as osPlatform;
 import '../tools/flutter_environment.dart';
 import '../utils/logger.dart';
 import 'base_controller.dart';
-
-import '../response_bean.dart';
 
 class ReleaseController extends BaseController{
 
@@ -34,23 +36,34 @@ class ReleaseController extends BaseController{
       return ResponseBean('$plat编译失败',code: 0,msg: '未安装flutter或未配置flutter环境变量');
     }
     try {
-      var result = 0;
-      if(platform == Platforms.Android){
-        result = await LoggerUtil.logRunZone(() async{
-          return await magpieBuildAndroid(['-f',flutterPath,'-t',targetPath,'-b',debugBuild?'debug':'release']);
+      Pair<int, String> result;
+      if (platform == Platforms.Android) {
+        result = await LoggerUtil.logRunZone(() async {
+          return await magpieBuildAndroid([
+            '-f',
+            flutterPath,
+            '-t',
+            targetPath,
+            '-b',
+            debugBuild ? 'debug' : 'release'
+          ]);
         });
-      }else if(platform == Platforms.Ios){
-        result = await LoggerUtil.logRunZone(() async{
-          return await debugBuild
-              ? magpieBuildIOSDebug(['-f', flutterPath, '-t', targetPath])
-              : magpieBuildIOS(['-f', flutterPath, '-t', targetPath]);
-        });
+      } else if (platform == Platforms.Ios) {
+        if (osPlatform.platform.isWindows) {
+          result = Pair(0, '请使用Mac构建iOS产物');
+        } else {
+          result = await LoggerUtil.logRunZone(() async {
+            return await debugBuild
+                ? magpieBuildIOSDebug(['-f', flutterPath, '-t', targetPath])
+                : magpieBuildIOS(['-f', flutterPath, '-t', targetPath]);
+          });
+        }
       }
 
-      if(result == 1){
-        return ResponseBean('$plat编译成功');
-      }else {
-        return ResponseBean('$plat编译失败',code: 0,msg: 'result:$result');
+      if (result.first == 1) {
+        return ResponseBean('$plat编译成功', msg: result.second);
+      } else {
+        return ResponseBean('$plat编译失败', code: 0, msg: result.second);
       }
     } catch (e) {
       return ResponseBean('$plat 编译失败',code: 0,msg: e.toString().replaceAll(RegExp(r'\n'),' '));//替换换行符，防止前端解析json失败
@@ -63,17 +76,28 @@ class ReleaseController extends BaseController{
     String targetPath = form['tPath'];
     String sourceUrl = form['sourceUrl'];
     String version = form['version'];
-
+    bool debugBuild = ctx.query.getBool('debug', false);
     try {
-      var result = 0;
-      result = await LoggerUtil.logRunZone(() async{
-        return await magpieGitPush(['-t',targetPath,'-m','release','-l',locationPath,'-s',sourceUrl,'-v',version]);
+      Pair<int, String> result;
+      result = await LoggerUtil.logRunZone(() async {
+        return await magpieGitPush([
+          '-t',
+          targetPath,
+          '-m',
+          debugBuild ? 'debug' : 'release',
+          '-l',
+          locationPath,
+          '-s',
+          sourceUrl,
+          '-v',
+          version
+        ]);
       });
 
-      if(result == 1){
+      if(result.first == 1){
         return ResponseBean('iOS上传成功');
       }else {
-        return ResponseBean('iOS上传失败',code: 0,msg: 'result:$result');
+        return ResponseBean('iOS上传失败', code: 0, msg: result.second);
       }
     } catch (e) {
       return ResponseBean('iOS上传败',code: 0,msg: e.toString().replaceAll(RegExp(r'\n'),' '));//替换换行符，防止前端解析json失败
@@ -84,17 +108,23 @@ class ReleaseController extends BaseController{
     Map form = ctx.query;
     String targetPath = form['tPath'];
     String versionTag = form['versionTag'];
-
+    bool debugBuild = ctx.query.getBool('debug', false);
     try {
-      var result = 0;
-      result = await LoggerUtil.logRunZone(() async{
-        return await magpieMavenUpload(['-t',targetPath,'-v',versionTag,'-m','release']);
+      var result = await LoggerUtil.logRunZone(() async {
+        return await magpieMavenUpload([
+          '-t',
+          targetPath,
+          '-v',
+          versionTag,
+          '-m',
+          debugBuild ? 'debug' : 'release'
+        ]);
       });
 
-      if(result == 1){
+      if (result.first == 1) {
         return ResponseBean('AAR上传成功');
-      }else {
-        return ResponseBean('AAR上传失败',code: 0,msg: 'result:$result');
+      } else {
+        return ResponseBean('AAR上传失败', code: 0, msg: result.second);
       }
     } catch (e) {
       return ResponseBean('AAR上传败',code: 0,msg: e.toString().replaceAll(RegExp(r'\n'),' '));//替换换行符，防止前端解析json失败

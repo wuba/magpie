@@ -1,6 +1,9 @@
 import 'dart:io';
+
 import 'package:args/args.dart';
+
 import 'magpie_utils.dart';
+import 'model.dart';
 import 'tools/base/file_system.dart';
 import 'tools/base/process.dart';
 
@@ -13,7 +16,7 @@ import 'tools/base/process.dart';
     "/Users/sac/magpie/example"
  */
 
-Future<int> magpieMavenUpload(List<String> args) async {
+Future<Pair<int, String>> magpieMavenUpload(List<String> args) async {
   ArgResults argResults = await parseArgs(args);
   String targetPath = argResults['targetPath'];
   String versionTag = argResults['version'];
@@ -28,7 +31,7 @@ Future<int> magpieMavenUpload(List<String> args) async {
   bool targetExist = await targetPathDir.exists();
   if (!targetExist) {
     print('目标目录不存在');
-    return -1;
+    return Pair(-1, '目标目录不存在');
   }
 
   final List<String> gradleCommand = <String>[
@@ -49,9 +52,9 @@ Future<int> magpieMavenUpload(List<String> args) async {
   );
   if (taskResult == 0) {
     print('aar上传maven成功');
-    return 1;
+    return Pair(1, 'aar上传maven成功');
   } else {
     print('aar上传maven失败');
-    return -1;
+    return Pair(-1, 'aar上传maven失败');
   }
 }

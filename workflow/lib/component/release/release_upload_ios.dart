@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:workflow/component/log/log_utils.dart';
+import 'package:workflow/provider/buid_modle_provider.dart';
 import 'package:workflow/utils/dialog_util.dart';
 import 'package:workflow/utils/net_util.dart';
 import 'package:workflow/utils/sp_util.dart';
@@ -160,7 +162,8 @@ class _ReleaseUploadIosState extends State<ReleaseUploadIos> {
       'lPath': _localGitPathController.text,
       'tPath': tPath,
       'sourceUrl': _gitUrlController.text,
-      'version': _gitTagVersionController.text
+      'version': _gitTagVersionController.text,
+      'debug': Provider.of<BuildModeProvider>(context, listen: false).mode,
     };
 
     String result = await NetUtils.post('/api/release/upload_ios', param);
