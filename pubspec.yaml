@@ -1,7 +1,7 @@
 name: magpie_cli
 description: Tools for magpie workflow, used to create template and start service.
 homepage: https://github.com/wuba/magpie_workflow
-version: 0.1.4-hotfix1
+version: 0.1.4-hotfix2
 environment:
   # The pub client defaults to an <2.0.0 sdk constraint which we need to explicitly overwrite.
   sdk: ">=2.2.2 <3.0.0"

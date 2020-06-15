@@ -1,7 +1,10 @@
-## [0.1.4-hotfix1]
+## [0.1.4-hotfix2]
 * 添加debug产物
 * 修复日志崩溃
 * 适配部分路径问题
+* 适配Debug AAR发布
+* 修复open命令在windows引起崩溃
+* 调整构建提示内容
 
 ## [0.1.4]
 * 修复gitignore问题
