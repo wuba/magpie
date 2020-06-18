@@ -30,6 +30,7 @@ dependencies:
   magpie:
     git:
       url: https://github.com/wuba/magpie_sdk.git
+      ref: dev_androidx_0.0.1
 
 dev_dependencies:
   flutter_test:
@@ -85,6 +86,6 @@ flutter:
   # They also do not have any bearing on your native host application's
   # identifiers, which may be completely independent or the same as these.
   module:
-    androidX: false
+    androidX: true
     androidPackage: com.example.wb_flutter_module
     iosBundleIdentifier: com.example.wbFlutterModule
