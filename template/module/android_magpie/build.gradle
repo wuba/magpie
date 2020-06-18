@@ -17,6 +17,9 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
+        maven {
+            url 'http://download.flutter.io'
+        }
     }
 }
 

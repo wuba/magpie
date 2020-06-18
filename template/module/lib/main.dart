@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:magpie/magpie.dart';
 
 void main() => runApp(MyApp());
 
@@ -38,11 +39,63 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
+
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Magpie.singleton.registerPageBuilders({
+      'flutterPage': (String pageName, Map<String, dynamic> params, String _) {
+        print("flutterPage params:$params");
+        return MyTestRouteWidget();
+      },
+    });
+  }
+
+  void _onRoutePushed(
+      String pageName,
+      String uniqueId,
+      Map<String, dynamic> params,
+      Route<dynamic> route,
+      Future<dynamic> _,
+      ) {}
+
+  @override
+  Widget build(BuildContext context) {
+
+
+    return MaterialApp(
+        title: 'magpie example',
+        builder: Magpie.init(postPush: _onRoutePushed),
+        home: Container(color:Colors.white));
+
+    // This method is rerun every time setState is called, for instance as done
+    // by the _incrementCounter method above.
+    //
+    // The Flutter framework has been optimized to make rerunning build methods
+    // fast, so that you can just rebuild anything that needs updating rather
+    // than having to individually change instances of widgets.
+
+  }
+}
+
+
+class MyTestRouteWidget extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() => MyRoute();
+
+}
+
+class MyRoute extends State<MyTestRouteWidget> {
+
   int _counter = 0;
 
   void _incrementCounter() {
@@ -58,17 +111,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text("hxin"),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -91,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
+              'You have pushed the button this many times now:',
             ),
             Text(
               '$_counter',
@@ -107,4 +154,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
+
 }

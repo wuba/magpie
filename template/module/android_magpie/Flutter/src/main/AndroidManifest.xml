@@ -7,5 +7,9 @@
     <meta-data
       android:name="flutterProjectType"
       android:value="module" />
+
+    <meta-data
+        android:name="flutterEmbedding"
+        android:value="2" />
   </application>
 </manifest>
